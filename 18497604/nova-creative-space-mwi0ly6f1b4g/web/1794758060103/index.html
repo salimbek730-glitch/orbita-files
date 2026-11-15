@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#090d1c" />
+  <title>NOVA — Your Space</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-mark">✦</span> NOVA</a>
+    <button class="icon-btn" id="themeBtn" aria-label="Rangni almashtirish">☼</button>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="eyebrow"><span class="live-dot"></span> YOUR DIGITAL SPACE</div>
+      <h1>Salom, <span class="gradient-text">yaratuvchi.</span></h1>
+      <p class="hero-copy">G‘oyalaringni uyg‘ot. Bugun nimadir ajoyib ish qil.</p>
+      <div class="hero-actions">
+        <a class="primary-btn" href="#tools">Boshlash <span>↗</span></a>
+        <button class="ghost-btn" id="surpriseBtn">Meni hayratlantir ✨</button>
+      </div>
+      <div class="hero-orb" aria-hidden="true"><div class="orb-core">✦</div></div>
+    </section>
+
+    <section class="quote-card">
+      <div class="quote-icon">“</div>
+      <div>
+        <p id="quoteText">Katta natijalar kichik qadamlardan boshlanadi.</p>
+        <span id="quoteAuthor">— NOVA fikri</span>
+      </div>
+      <button class="quote-refresh" id="quoteBtn" aria-label="Yangi fikr">↻</button>
+    </section>
+
+    <section class="section" id="tools">
+      <div class="section-heading">
+        <div><span class="eyebrow">DISCOVER</span><h2>Mini laboratoriya</h2></div>
+        <span class="section-count">03 TOOLS</span>
+      </div>
+      <div class="tool-grid">
+        <article class="tool-card focus-card">
+          <div class="card-top"><span class="tool-icon">⏱</span><span class="tag">FOCUS</span></div>
+          <h3>Diqqat vaqti</h3>
+          <p>Bir ishga e’tibor berish uchun kichik tanaffusli taymer.</p>
+          <div class="timer" id="timer">05:00</div>
+          <div class="timer-actions">
+            <button class="small-primary" id="timerStart">Boshlash</button>
+            <button class="small-ghost" id="timerReset">↺</button>
+          </div>
+        </article>
+
+        <article class="tool-card color-card">
+          <div class="card-top"><span class="tool-icon">🎨</span><span class="tag">CREATE</span></div>
+          <h3>Rang generatori</h3>
+          <p>Bir bosishda yangi rang uyg‘unligini top.</p>
+          <div class="swatches" id="swatches">
+            <span style="--swatch:#8b5cf6"></span><span style="--swatch:#22d3ee"></span><span style="--swatch:#f472b6"></span>
+          </div>
+          <button class="small-primary" id="colorBtn">Yangi ranglar</button>
+        </article>
+
+        <article class="tool-card idea-card">
+          <div class="card-top"><span class="tool-icon">💡</span><span class="tag">IDEAS</span></div>
+          <h3>G‘oya mashinasi</h3>
+          <p id="ideaText">Bugun o‘zing uchun foydali mini loyiha o‘ylab top.</p>
+          <button class="small-primary" id="ideaBtn">Yangi g‘oya ↗</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="section note-section">
+      <div class="section-heading">
+        <div><span class="eyebrow">YOUR SPACE</span><h2>Tezkor qaydlar</h2></div>
+        <span class="section-count">LOCAL</span>
+      </div>
+      <div class="notes-panel">
+        <textarea id="noteInput" placeholder="Fikringni shu yerga yoz..."></textarea>
+        <div class="notes-bottom"><span id="saveStatus">Qaydlar qurilmangda saqlanadi</span><button class="small-primary" id="saveNote">Saqlash</button></div>
+        <div id="savedNote" class="saved-note hidden"></div>
+      </div>
+    </section>
+
+    <footer><span class="brand"><span class="brand-mark">✦</span> NOVA</span><span>Made for curious minds.</span></footer>
+  </main>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script src="script.js"></script>
+</body>
+</html>
