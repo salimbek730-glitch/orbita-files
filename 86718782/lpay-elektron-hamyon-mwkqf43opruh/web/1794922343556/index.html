@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#246bfe">
+<title>LPay — Demo hamyon</title>
+<style>
+:root{
+  --navy:#14213d; --blue:#246bfe; --blue-2:#5b9bff;
+  --bg:#f4f7fc; --card:#ffffff; --muted:#7b879b; --line:#e8edf5;
+  --pos:#169b69; --neg:#e5484d;
+  --shadow:0 10px 30px rgba(24,52,91,.06);
+}
+[data-theme="dark"]{
+  --navy:#e6edfb; --bg:#0b1220; --card:#131c2e; --muted:#8593ab; --line:#22304a;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--navy);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;transition:background .25s,color .25s;
+}
+button{font-family:inherit}
+/* ---------- TOPBAR ---------- */
+.topbar{
+  position:sticky;top:0;z-index:40;height:70px;background:var(--card);
+  border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;
+  padding:0 max(16px,calc((100% - 1180px)/2));transition:background .25s;
+}
+.brand{display:flex;align-items:center;gap:10px;font-size:23px;font-weight:900;letter-spacing:-.8px}
+.brand .logo{
+  width:36px;height:36px;border-radius:12px;display:grid;place-items:center;color:#fff;
+  background:linear-gradient(135deg,#246bfe,#5b9bff);font-size:17px;font-weight:900;
+  box-shadow:0 8px 18px rgba(36,107,254,.35);
+}
+.brand em{font-style:normal;color:var(--blue)}
+.top-actions{display:flex;align-items:center;gap:8px}
+.demo{font-size:11px;background:#eef4ff;color:var(--blue);padding:7px 12px;border-radius:20px;font-weight:800;letter-spacing:.3px}
+[data-theme="dark"] .demo{background:#1b2740}
+.icon-btn{
+  width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--card);
+  color:var(--navy);font-size:16px;cursor:pointer;display:grid;place-items:center;position:relative;
+  transition:.18s;
+}
+.icon-btn:hover{background:var(--bg)}
+.icon-btn .dot{position:absolute;top:8px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--neg)}
+@media(max-width:600px){.demo{display:none}}
+/* ---------- LAYOUT ---------- */
+.wrap{max-width:1180px;margin:28px auto 40px;padding:0 16px}
+.welcome{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:20px}
+.welcome h1{font-size:26px;margin:0 0 6px;letter-spacing:-.6px}
+.welcome p{color:var(--muted);margin:0;font-size:14px}
+.layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.85fr);gap:20px;align-items:start}
+.col{display:flex;flex-direction:column;gap:20px;min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow);transition:background .25s,border-color .25s}
+.section-title{font-size:16.5px;margin:0 0 16px;letter-spacing:-.3px}
+.row-between{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.row-between .section-title{margin:0}
+.link-btn{background:none;border:0;color:var(--blue);font-weight:800;font-size:13.5px;cursor:pointer;padding:6px 8px;border-radius:9px}
+.link-btn:hover{background:#eef4ff}
+[data-theme="dark"] .link-btn:hover{background:#1b2740}
+/* ---------- BALANS ---------- */
+.balance{
+  background:linear-gradient(120deg,#1e5ce6,#397dff 60%,#4f8dff);color:#fff;
+  border:0;position:relative;overflow:hidden;padding:26px;
+}
+.balance:after{
+  content:"";position:absolute;width:230px;height:230px;border:1px solid #ffffff30;border-radius:50%;
+  right:-70px;top:-90px;box-shadow:0 0 0 28px #ffffff0d,0 0 0 58px #ffffff0a;
+}
+.balance:before{
+  content:"";position:absolute;width:150px;height:150px;border-radius:50%;background:#ffffff12;
+  left:-60px;bottom:-80px;
+}
+.balance>*{position:relative;z-index:1}
+.label{font-size:13px;opacity:.85}
+.amountline{display:flex;align-items:center;gap:12px;margin:12px 0 6px;flex-wrap:wrap}
+.amount{font-size:34px;font-weight:900;letter-spacing:-1.2px}
+.eye{border:0;background:#ffffff26;color:#fff;border-radius:10px;padding:8px 11px;cursor:pointer;font-size:14px}
+.eye:hover{background:#ffffff38}
+.sub-amount{font-size:13px;opacity:.82;margin-bottom:22px}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.action{
+  border:0;border-radius:12px;padding:12px 18px;font-weight:800;font-size:13.5px;cursor:pointer;
+  background:#fff;color:var(--blue);transition:.18s;
+}
+.action:hover{transform:translateY(-1px)}
+.action.secondary{background:#ffffff1f;color:#fff;border:1px solid #ffffff40}
+.action.full{width:100%;background:var(--blue);color:#fff;margin-top:6px}
+/* ---------- HAMYONLAR ---------- */
+.wallets{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.wallet{border:1px solid var(--line);border-radius:15px;padding:16px;transition:.18s;cursor:default}
+.wallet:hover{border-color:var(--blue);transform:translateY(-2px)}
+.wallet-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.wallet-icon{width:36px;height:36px;border-radius:11px;background:#edf3ff;color:var(--blue);display:grid;place-items:center;font-weight:900}
+[data-theme="dark"] .wallet-icon{background:#1b2740}
+.wallet small{color:var(--muted);font-size:11.5px;font-weight:700}
+.wallet strong{display:block;font-size:18px;margin-top:6px;letter-spacing:-.5px}
+/* ---------- KARTALAR ---------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.bankcard{
+  border-radius:16px;padding:18px;color:#fff;position:relative;overflow:hidden;
+  background:linear-gradient(130deg,#1e5ce6,#4f8dff);box-shadow:0 10px 22px rgba(36,107,254,.28);
+}
+.bankcard.uzcard{background:linear-gradient(130deg,#0f8a5f,#28b57f);box-shadow:0 10px 22px rgba(22,155,105,.28)}
+.bankcard.visa{background:linear-gradient(130deg,#1a2440,#33436b);box-shadow:0 10px 22px rgba(20,33,61,.3)}
+.bc-top{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;font-weight:800;opacity:.95}
+.bc-type{font-size:11px;opacity:.75;font-weight:700}
+.bc-num{font-size:16px;letter-spacing:1.5px;font-weight:700;margin:18px 0 14px}
+.bc-bottom{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;opacity:.9}
+.bc-copy{background:#ffffff26;border:0;color:#fff;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:12px}
+.bc-copy:hover{background:#ffffff3d}
+/* ---------- AMALIYOTLAR ---------- */
+.search{
+  width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--bg);
+  color:var(--navy);font-size:14px;outline:none;margin-bottom:12px;font-family:inherit;
+}
+.search:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(36,107,254,.14)}
+.chips{display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.chip{
+  border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:20px;
+  padding:7px 15px;font-size:12.5px;font-weight:800;cursor:pointer;transition:.15s;
+}
+.chip.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.transaction{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-top:1px solid var(--line);gap:10px}
+.transaction:first-child{border-top:0}
+.tx-left{display:flex;align-items:center;gap:11px;min-width:0}
+.tx-icon{width:38px;height:38px;border-radius:12px;background:#f0f4fb;display:grid;place-items:center;font-size:15px;flex:none}
+[data-theme="dark"] .tx-icon{background:#1b2740}
+.tx-icon.in{background:#e8f8f1;color:var(--pos)}
+.tx-icon.out{background:#fdeeee;color:var(--neg)}
+[data-theme="dark"] .tx-icon.in{background:#12301f}
+[data-theme="dark"] .tx-icon.out{background:#33161a}
+.tx-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-date{font-size:12px;color:var(--muted);margin-top:4px}
+.tx-value{font-weight:900;font-size:14px;white-space:nowrap}
+.positive{color:var(--pos)}
+.negative{color:var(--neg)}
+.empty{text-align:center;color:var(--muted);font-size:13.5px;padding:26px 0}
+/* ---------- TEZKOR ---------- */
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quick button{
+  border:1px solid var(--line);background:var(--card);border-radius:14px;padding:15px 8px;cursor:pointer;
+  color:var(--navy);font-weight:800;font-size:12.5px;transition:.18s;
+}
+.quick button:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-2px)}
+.quick button span{display:block;font-size:20px;margin-bottom:7px;color:var(--blue)}
+/* ---------- KONVERTER ---------- */
+.conv-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.conv-row input,.conv-row select{
+  width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:12px;background:var(--bg);
+  color:var(--navy);font-size:14.5px;outline:none;font-family:inherit;font-weight:700;
+}
+.conv-row input:focus,.conv-row select:focus{border-color:var(--blue)}
+.conv-result{
+  background:var(--bg);border:1px dashed var(--line);border-radius:13px;padding:15px;
+  font-size:13px;color:var(--muted);text-align:center;
+}
+.conv-result strong{display:block;font-size:22px;color:var(--navy);margin-top:5px;letter-spacing:-.6px}
+.rate{font-size:12px;color:var(--muted);text-align:center;margin:11px 0 4px}
+/* ---------- NOTICE ---------- */
+.notice{font-size:12px;color:var(--muted);text-align:center;margin:22px 0 10px;line-height:1.6}
+/* ---------- MODAL ---------- */
+.modal-back{
+  position:fixed;inset:0;background:rgba(16,27,50,.62);backdrop-filter:blur(3px);
+  display:flex;align-items:center;justify-content:center;padding:18px;z-index:100;
+  opacity:0;visibility:hidden;transition:.22s;
+}
+.modal-back.open{opacity:1;visibility:visible}
+.modal{
+  background:var(--card);border-radius:20px;padding:24px;width:min(100%,410px);
+  box-shadow:0 24px 70px rgba(0,0,0,.35);max-height:88vh;overflow-y:auto;
+  transform:translateY(14px) scale(.98);transition:.22s;
+}
+.modal-back.open .modal{transform:none}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.modal h2{margin:0;font-size:20px;letter-spacing:-.4px}
+.modal-close{border:0;background:var(--bg);color:var(--muted);width:32px;height:32px;border-radius:10px;cursor:pointer;font-size:14px;flex:none}
+.modal p{color:var(--muted);font-size:13px;margin:8px 0 18px;line-height:1.5}
+.field{display:block;margin-bottom:13px}
+.field span{display:block;font-size:12.5px;font-weight:800;color:var(--muted);margin-bottom:6px}
+.field input,.field select{
+  width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:12px;
+  background:var(--bg);color:var(--navy);font-size:15px;font-family:inherit;outline:none;font-weight:600;
+}
+.field input:focus,.field select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(36,107,254,.15)}
+.quick-amounts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.quick-amounts button{
+  flex:1;min-width:78px;border:1px solid var(--line);background:var(--bg);border-radius:10px;
+  padding:9px 6px;font-size:12.5px;font-weight:800;color:var(--navy);cursor:pointer;
+}
+.quick-amounts button:hover{border-color:var(--blue);color:var(--blue)}
+.modal-actions{display:flex;gap:10px;margin-top:16px}
+.modal-actions button{flex:1;padding:13px;border:0;border-radius:12px;font-weight:800;cursor:pointer;font-size:14px}
+.primary{background:var(--blue);color:#fff}
+.primary:hover{background:#1a58e0}
+.cancel{background:var(--bg);color:var(--navy);border:1px solid var(--line)}
+#message{font-size:13px;font-weight:700;min-height:18px;margin-top:12px;line-height:1.4}
+/* ---------- TOAST ---------- */
+.toast{
+  position:fixed;left:50%;bottom:96px;transform:translate(-50%,20px);opacity:0;pointer-events:none;
+  background:#14213d;color:#fff;padding:13px 20px;border-radius:13px;font-size:13.5px;font-weight:700;
+  z-index:200;box-shadow:0 14px 34px rgba(0,0,0,.32);transition:.3s;max-width:90vw;text-align:center;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+/* ---------- BOTTOM NAV ---------- */
+.bottomnav{
+  position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;
+  background:var(--card);border-top:1px solid var(--line);
+  padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+  box-shadow:0 -6px 22px rgba(20,33,61,.07);
+}
+.bn-item{
+  border:0;background:none;color:var(--muted);font-size:10.5px;font-weight:800;
+  display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 2px;cursor:pointer;border-radius:12px;
+}
+.bn-item span{font-size:18px;line-height:1}
+.bn-item.active,.bn-item:hover{color:var(--blue)}
+/* ---------- RESPONSIVE ---------- */
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .bottomnav{display:grid;grid-template-columns:repeat(5,1fr)}
+  body{padding-bottom:78px}
+  .welcome{align-items:flex-start;flex-direction:column;gap:6px}
+  .welcome h1{font-size:23px}
+  .toast{bottom:92px}
+}
+@media(max-width:520px){
+  .wrap{margin-top:20px;padding:0 12px}
+  .card{padding:18px;border-radius:17px}
+  .balance{padding:20px}
+  .amount{font-size:28px}
+  .amountline{gap:8px}
+  .action{padding:11px 14px;font-size:12.5px;flex:1 1 auto}
+  .tx-name{font-size:13.5px}
+  .tx-value{font-size:13.5px}
+  .conv-row{grid-template-columns:1fr}
+  .bc-num{font-size:14.5px;letter-spacing:1px}
+}
+@media(max-width:360px){
+  .wallets{grid-template-columns:1fr}
+  .amount{font-size:25px}
+  .quick{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ TOPBAR ============ -->
+<header class="topbar">
+  <div class="brand"><div class="logo">L</div>L<em>Pay</em></div>
+  <div class="top-actions">
+    <span class="demo">DEMO HISOB</span>
+    <button class="icon-btn" id="themeBtn" aria-label="Mavzuni almashtirish">🌙</button>
+    <button class="icon-btn" data-act="notifications" aria-label="Bildirishnomalar">🔔<span class="dot"></span></button>
+  </div>
+</header>
+
+<!-- ============ MAIN ============ -->
+<main class="wrap">
+  <div class="welcome">
+    <div>
+      <h1>Salom, Aziz! 👋</h1>
+      <p>Hamyoningiz holati va so‘nggi amaliyotlar</p>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- ---------- CHAP USTUN ---------- -->
+    <div class="col">
+
+      <!-- Balans -->
+      <div class="card balance">
+        <div class="label">Umumiy balans</div>
+        <div class="amountline">
+          <div class="amount" id="balance">2 450 000 so‘m</div>
+          <button class="eye" id="toggle" aria-label="Balansni yashirish">◉</button>
+        </div>
+        <div class="sub-amount" id="balanceSub">≈ $192.16</div>
+        <div class="actions">
+          <button class="action" data-act="send">↑ Pul yuborish</button>
+          <button class="action secondary" data-act="topup">＋ To‘ldirish</button>
+          <button class="action secondary" data-act="exchange">⇄ Almashtirish</button>
+        </div>
+      </div>
+
+      <!-- Hamyonlar -->
+      <div class="card">
+        <h3 class="section-title">Mening hamyonlarim</h3>
+        <div class="wallets">
+          <div class="wallet">
+            <div class="wallet-top"><div class="wallet-icon">S</div><small>UZS</small></div>
+            <small>Asosiy hamyon</small>
+            <strong id="walletUZS">2 450 000 so‘m</strong>
+          </div>
+          <div class="wallet">
+            <div class="wallet-top"><div class="wallet-icon">$</div><small>USD</small></div>
+            <small>Dollar hamyon</small>
+            <strong id="walletUSD">$50.00</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kartalar -->
+      <div class="card">
+        <div class="row-between">
+          <h3 class="section-title">Mening kartalarim</h3>
+          <button class="link-btn" data-act="addcard">＋ Karta qo‘shish</button>
+        </div>
+        <div class="cards" id="cardsList"></div>
+      </div>
+
+      <!-- Amaliyotlar -->
+      <div class="card" id="txSection">
+        <div class="row-between">
+          <h3 class="section-title">Amaliyotlar tarixi</h3>
+        </div>
+        <input class="search" id="txSearch" placeholder="🔍 Amaliyotlarni qidirish...">
+        <div class="chips" id="txFilters">
+          <button class="chip active" data-filter="all">Barchasi</button>
+          <button class="chip" data-filter="in">Kirim</button>
+          <button class="chip" data-filter="out">Chiqim</button>
+        </div>
+        <div id="txList"></div>
+      </div>
+
+    </div>
+
+    <!-- ---------- O'NG USTUN ---------- -->
+    <aside class="col">
+
+      <!-- Tezkor amallar -->
+      <div class="card">
+        <h3 class="section-title">Tezkor amallar</h3>
+        <div class="quick">
+          <button data-act="send"><span>↗</span>Yuborish</button>
+          <button data-act="topup"><span>＋</span>To‘ldirish</button>
+          <button data-act="addcard"><span>▣</span>Kartalar</button>
+          <button data-act="settings"><span>⚙</span>Sozlamalar</button>
+        </div>
+      </div>
+
+      <!-- Konverter -->
+      <div class="card" id="converter">
+        <h3 class="section-title">Valyuta almashtirish</h3>
+        <div class="conv-row">
+          <input id="convAmount" type="number" min="0" inputmode="decimal" value="100000" placeholder="Summa">
+          <select id="convDir">
+            <option value="uzs-usd">so‘m → USD</option>
+            <option value="usd-uzs">USD → so‘m</option>
+          </select>
+        </div>
+        <div class="conv-result">Natija<strong id="convResult">$7.84</strong></div>
+        <div class="rate" id="rateLabel">1 USD = 12 750 so‘m</div>
+        <button class="action full" id="convBtn">Almashtirish</button>
+      </div>
+
+      <!-- Bildirishnoma / ma'lumot -->
+      <div class="card">
+        <h3 class="section-title">Foydali</h3>
+        <div class="transaction">
+          <div class="tx-left">
+            <div class="tx-icon">🛡</div>
+            <div><div class="tx-name">Xavfsizlik</div><div class="tx-date">2 bosqichli himoya yoqilgan</div></div>
+          </div>
+        </div>
+        <div class="transaction">
+          <div class="tx-left">
+            <div class="tx-icon">💬</div>
+            <div><div class="tx-name">Yordam</div><div class="tx-date">24/7 qo‘llab-quvvatlash</div></div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+
+  <div class="notice">
+    Bu faqat namoyish uchun yaratilgan demo sayt.<br>
+    Haqiqiy pul, bank hisoblari yoki to‘lov tizimlari bilan ulanmagan.
+  </div>
+</main>
+
+<!-- ============ BOTTOM NAV (mobil) ============ -->
+<nav class="bottomnav">
+  <button class="bn-item active" data-act="home"><span>⌂</span>Asosiy</button>
+  <button class="bn-item" data-act="send"><span>↗</span>Yuborish</button>
+  <button class="bn-item" data-act="topup"><span>＋</span>To‘ldirish</button>
+  <button class="bn-item" data-act="tx"><span>≡</span>Tarix</button>
+  <button class="bn-item" data-act="settings"><span>⚙</span>Profil</button>
+</nav>
+
+<!-- ============ MODAL ============ -->
+<div class="modal-back" id="overlay" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="modalTitle">Pul yuborish</h2>
+      <button class="modal-close" id="modalClose" aria-label="Yopish">✕</button>
+    </div>
+    <p id="modalDesc">Demo amaliyotini sinab ko‘ring.</p>
+    <div id="modalBody"></div>
+    <div class="modal-actions" id="modalActions"></div>
+    <div id="message"></div>
+  </div>
+</div>
+
+<!-- ============ TOAST ============ -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   LPay — Demo hamyon (barcha ma'lumotlar faqat brauzerda)
+   ========================================================= */
+const $  = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const STORE_KEY = 'lpay_demo_v2';
+
+/* ---------- HOLAT ---------- */
+const state = {
+  hidden: false,
+  theme : 'light',
+  rate  : 12750,                 // 1 USD = 12 750 so'm
+  wallets: { uzs: 2450000, usd: 50 },
+  cards: [
+    { id:1, brand:'Humo',   type:'Debet', number:'9860123456784521', expiry:'09/27' },
+    { id:2, brand:'Uzcard', type:'Debet', number:'8600456789012345', expiry:'03/28' }
+  ],
+  txs: [
+    { id:1, dir:'in',  icon:'↓',  name:'Hisob to‘ldirildi', date:'Bugun, 10:24',    amount:500000, cur:'UZS' },
+    { id:2, dir:'out', icon:'↗',  name:'Do‘stga yuborildi',  date:'Kecha, 18:40',    amount:150000, cur:'UZS' },
+    { id:3, dir:'out', icon:'🛍', name:'Onlayn xarid',       date:'12-noyabr, 14:02', amount:75000,  cur:'UZS' },
+    { id:4, dir:'in',  icon:'💵', name:'USD konvertatsiya',  date:'10-noyabr, 09:15', amount:20,     cur:'USD' }
+  ]
+};
+
+let txFilter = 'all';
+let txQuery  = '';
+
+/* ---------- YORDAMCHILAR ---------- */
+const fmt = n => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const uzs = n => fmt(n) + ' so‘m';
+const usd = n => '$' + Number(n).toFixed(2);
+const money = (n, cur) => cur === 'USD' ? usd(n) : uzs(n);
+const pad = n => String(n).padStart(2, '0');
+const nowLabel = () => { const d = new Date(); return `Bugun, ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+
+function save(){
+  try{
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      hidden: state.hidden, theme: state.theme, rate: state.rate,
+      wallets: state.wallets, cards: state.cards, txs: state.txs
+    }));
+  }catch(e){}
+}
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw) Object.assign(state, JSON.parse(raw));
+  }catch(e){}
+}
+
+/* ---------- TOAST ---------- */
+let toastTimer;
+function toast(text){
+  const el = $('#toast');
+  el.textContent = text;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+/* ---------- RENDER ---------- */
+function renderBalance(){
+  $('#balance').textContent = state.hidden ? '••••••••' : uzs(state.wallets.uzs);
+  $('#balanceSub').textContent = state.hidden ? '••••••' : '≈ ' + usd(state.wallets.uzs / state.rate);
+  $('#walletUZS').textContent = state.hidden ? '••••••' : uzs(state.wallets.uzs);
+  $('#walletUSD').textContent = state.hidden ? '••••' : usd(state.wallets.usd);
+  $('#toggle').textContent = state.hidden ? '◌' : '◉';
+}
+
+function renderTxs(){
+  const box = $('#txList');
+  const q = txQuery.trim().toLowerCase();
+  const list = state.txs.filter(t =>
+    (txFilter === 'all' || t.dir === txFilter) &&
+    (!q || t.name.toLowerCase().includes(q))
+  );
+
+  if(!list.length){
+    box.innerHTML = '<div class="empty">Amaliyot topilmadi 🔍</div>';
+    return;
+  }
+
+  box.innerHTML = list.map(t => {
+    const sign = t.dir === 'in' ? '+' : '−';
+    return `<div class="transaction">
+      <div class="tx-left">
+        <div class="tx-icon ${t.dir}">${t.icon}</div>
+        <div>
+          <div class="tx-name">${t.name}</div>
+          <div class="tx-date">${t.date}</div>
+        </div>
+      </div>
+      <div class="tx-value ${t.dir === 'in' ? 'positive' : 'negative'}">${sign}${fmt(t.amount)}${t.cur === 'USD' ? ' $' : ''}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderCards(){
+  const box = $('#cardsList');
+  if(!state.cards.length){
+    box.innerHTML = '<div class="empty">Hali karta qo‘shilmagan</div>';
+    return;
+  }
+  box.innerHTML = state.cards.map(c => {
+    const brandCls = c.brand.toLowerCase();
+    const first = c.number.slice(0, 4);
+    const last  = c.number.slice(-4);
+    return `<div class="bankcard ${brandCls}">
+      <div class="bc-top"><span>${c.brand}</span><span class="bc-type">${c.type}</span></div>
+      <div class="bc-num">${first} •••• •••• ${last}</div>
+      <div class="bc-bottom">
+        <span>${c.expiry}</span>
+        <button class="bc-copy" data-copy="${c.number}" title="Nusxalash">⧉ Nusxa</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderAll(){
+  renderBalance();
+  renderTxs();
+  renderCards();
+  updateConv();
+}
+
+/* ---------- MODAL TIZIMI ---------- */
+const overlay = $('#overlay');
+
+function openModal({ title, desc = '', body = '', actions = [] }){
+  $('#modalTitle').textContent = title;
+  $('#modalDesc').innerHTML = desc;
+  $('#modalBody').innerHTML = body;
+  $('#message').textContent = '';
+  const box = $('#modalActions');
+  box.innerHTML = '';
+  actions.forEach(a => {
+    const b = document.createElement('button');
+    b.className = a.cls || 'primary';
+    b.textContent = a.label;
+    b.onclick = () => (a.onClick ? a.onClick() : closeModal());
+    box.appendChild(b);
+  });
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  const firstInput = $('#modalBody input');
+  if(firstInput) setTimeout(() => firstInput.focus(), 120);
+}
+
+function closeModal(){
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function setMsg(text, ok = false){
+  const m = $('#message');
+  m.style.color = ok ? 'var(--pos)' : 'var(--neg)';
+  m.textContent = text;
+}
+
+/* ---------- MODAL: PUL YUBORISH ---------- */
+function modalSend(){
+  openModal({
+    title: 'Pul yuborish',
+    desc: 'Qabul qiluvchi va summani kiriting. Bu demo — pul haqiqiy emas.',
+    body: `
+      <label class="field"><span>Qabul qiluvchi</span>
+        <input id="f_recipient" placeholder="+998 90 123 45 67 yoki LPay ID" autocomplete="off"></label>
+      <label class="field"><span>Summa (so‘m)</span>
+        <input id="f_amount" type="number" min="1" inputmode="numeric" placeholder="0"></label>
+      <div class="quick-amounts">
+        <button type="button" data-fill="50000">50 000</button>
+        <button type="button" data-fill="100000">100 000</button>
+        <button type="button" data-fill="500000">500 000</button>
+        <button type="button" data-fill="1000000">1 000 000</button>
+      </div>
+      <div class="rate" style="text-align:left">Komissiya: 0 so‘m (demo)</div>
+    `,
+    actions: [
+      { label: 'Bekor qilish', cls: 'cancel', onClick: closeModal },
+      { label: 'Tasdiqlash', cls: 'primary', onClick: doSend }
+    ]
+  });
+  bindQuickAmounts();
+}
+
+function doSend(){
+  const rec = $('#f_recipient').value.trim();
+  const amt = Number($('#f_amount').value);
+
+  if(rec.length < 4)        return setMsg('Qabul qiluvchi raqamini kiriting.');
+  if(!Number.isFinite(amt) || amt <= 0) return setMsg('Summani to‘g‘ri kiriting.');
+  if(amt > state.wallets.uzs) return setMsg('Balansda mablag‘ yetarli emas.');
+
+  state.wallets.uzs -= amt;
+  state.txs.unshift({ id: Date.now(), dir:'out', icon:'↗', name:'O‘tkazma: ' + rec, date: nowLabel(), amount: amt, cur:'UZS' });
+
+  save(); renderAll(); closeModal();
+  toast(`✅ ${uzs(amt)} muvaffaqiyatli yuborildi`);
+}
+
+/* ---------- MODAL: TO'LDIRISH ---------- */
+function modalTopup(){
+  openModal({
+    title: 'Hamyonni to‘ldirish',
+    desc: 'Demo rejimida to‘ldirish summasini tanlang yoki kiriting.',
+    body: `
+      <label class="field"><span>Summa (so‘m)</span>
+        <input id="f_amount" type="number" min="1" inputmode="numeric" placeholder="0"></label>
+      <div class="quick-amounts">
+        <button type="button" data-fill="100000">100 000</button>
+        <button type="button" data-fill="500000">500 000</button>
+        <button type="button" data-fill="1000000">1 000 000</button>
+        <button type="button" data-fill="2000000">2 000 000</button>
+      </div>
+      <label class="field" style="margin-top:12px"><span>To‘lov usuli</span>
+        <select id="f_method">
+          <option>Humo karta •••• 4521</option>
+          <option>Uzcard karta •••• 2345</option>
+          <option>Payme (demo)</option>
+          <option>Click (demo)</option>
+        </select></label>
+    `,
+    actions: [
+      { label: 'Bekor qilish', cls: 'cancel', onClick: closeModal },
+      { label: 'To‘ldirish', cls: 'primary', onClick: doTopup }
+    ]
+  });
+  bindQuickAmounts();
+}
+
+function doTopup(){
+  const amt = Number($('#f_amount').value);
+  if(!Number.isFinite(amt) || amt <= 0) return setMsg('Summani to‘g‘ri kiriting.');
+
+  state.wallets.uzs += amt;
+  state.txs.unshift({ id: Date.now(), dir:'in', icon:'↓', name:'Hisob to‘ldirildi', date: nowLabel(), amount: amt, cur:'UZS' });
+
+  save(); renderAll(); closeModal();
+  toast(`✅ Balans ${uzs(amt)} ga to‘ldirildi`);
+}
+
+/* ---------- MODAL: KARTA QO'SHISH ---------- */
+function modalAddCard(){
+  openModal({
+    title: 'Karta qo‘shish',
+    desc: 'Demo rejimida istalgan 16 xonali raqamni kiritishingiz mumkin.',
+    body: `
+      <label class="field"><span>Karta raqami</span>
+        <input id="f_cardnum" inputmode="numeric" maxlength="19" placeholder="8600 0000 0000 0000"></label>
+      <label class="field"><span>Amal qilish muddati</span>
+        <input id="f_expiry" maxlength="5" placeholder="MM/YY"></label>
+      <label class="field"><span>Karta turi</span>
+        <select id="f_brand">
+          <option value="Humo">Humo</option>
+          <option value="Uzcard">Uzcard</option>
+          <option value="Visa">Visa</option>
+        </select></label>
+    `,
+    actions: [
+      { label: 'Bekor qilish', cls: 'cancel', onClick: closeModal },
+      { label: 'Qo‘shish', cls: 'primary', onClick: doAddCard }
+    ]
+  });
+
+  const numInput = $('#f_cardnum');
+  numInput.addEventListener('input', () => {
+    const digits = numInput.value.replace(/\D/g, '').slice(0, 16);
+    numInput.value = digits.replace(/(.{4})/g, '$1 ').trim();
+  });
+
+  const expInput = $('#f_expiry');
+  expInput.addEventListener('input', () => {
+    const d = expInput.value.replace(/\D/g, '').slice(0, 4);
+    expInput.value = d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d;
+  });
+}
+
+function doAddCard(){
+  const raw = $('#f_cardnum').value.replace(/\D/g, '');
+  const exp = $('#f_expiry').value.trim();
+  const brand = $('#f_brand').value;
+
+  if(raw.length !== 16) return setMsg('Karta raqami 16 xonali bo‘lishi kerak.');
+  if(!/^\d{2}\/\d{2}$/.test(exp)) return setMsg('Muddatni MM/YY ko‘rinishida kiriting.');
+
+  state.cards.push({ id: Date.now(), brand, type: 'Debet', number: raw, expiry: exp });
+  save(); renderCards(); closeModal();
+  toast(`✅ ${brand} kartasi qo‘shildi`);
+}
+
+/* ---------- MODAL: SOZLAMALAR ---------- */
+function modalSettings(){
+  openModal({
+    title: 'Sozlamalar',
+    desc: 'Demo profil sozlamalari.',
+    body: `
+      <label class="field"><span>Mavzu</span>
+        <select id="f_theme">
+          <option value="light" ${state.theme === 'light' ? 'selected' : ''}>Yorug‘</option>
+          <option value="dark"  ${state.theme === 'dark'  ? 'selected' : ''}>Tungi</option>
+        </select></label>
+      <label class="field"><span>Til</span>
+        <select id="f_lang">
+          <option>O‘zbekcha</option>
+          <option>Русский</option>
+          <option>English</option>
+        </select></label>
+      <label class="field"><span>Bildirishnomalar</span>
+        <select id="f_notify">
+          <option>Yoqilgan</option>
+          <option>O‘chirilgan</option>
+        </select></label>
+      <div class="rate" style="text-align:left">Hisob: Aziz Karimov · ID: LP-884219</div>
+    `,
+    actions: [
+      { label: 'Demo ma’lumotlarni tiklash', cls: 'cancel', onClick: resetDemo },
+      { label: 'Saqlash', cls: 'primary', onClick: () => {
+          state.theme = $('#f_theme').value;
+          applyTheme();
+          save();
+          closeModal();
+          toast('✅ Sozlamalar saqlandi');
+        } }
+    ]
+  });
+}
+
+function resetDemo(){
+  try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+  location.reload();
+}
+
+/* ---------- MODAL: BILDIRISHNOMALAR ---------- */
+function modalNotifications(){
+  openModal({
+    title: 'Bildirishnomalar',
+    desc: 'So‘nggi xabarlar (demo).',
+    body: `
+      <div class="transaction">
+        <div class="tx-left"><div class="tx-icon in">↓</div>
+          <div><div class="tx-name">Hisobingiz to‘ldirildi</div><div class="tx-date">Bugun, 10:24 · +500 000 so‘m</div></div></div>
+      </div>
+      <div class="transaction">
+        <div class="tx-left"><div class="tx-icon">🛡</div>
+          <div><div class="tx-name">Xavfsizlik</div><div class="tx-date">Yangi qurilmadan kirish aniqlandi</div></div></div>
+      </div>
+      <div class="transaction">
+        <div class="tx-left"><div class="tx-icon">🎁</div>
+          <div><div class="tx-name">Aksiya</div><div class="tx-date">Birinchi o‘tkazma — komissiyasiz!</div></div></div>
+      </div>
+    `,
+    actions: [{ label: 'Yopish', cls: 'primary', onClick: closeModal }]
+  });
+}
+
+/* ---------- QUICK AMOUNT TUGMALARI ---------- */
+function bindQuickAmounts(){
+  $$('#modalBody [data-fill]').forEach(b => {
+    b.onclick = () => { $('#f_amount').value = b.dataset.fill; };
+  });
+}
+
+/* ---------- VALYUTA KONVERTERI ---------- */
+function updateConv(){
+  const amt = Number($('#convAmount').value) || 0;
+  const dir = $('#convDir').value;
+  const out = dir === 'uzs-usd' ? amt / state.rate : amt * state.rate;
+  $('#convResult').textContent = dir === 'uzs-usd' ? usd(out) : uzs(out);
+  $('#rateLabel').textContent = '1 USD = ' + fmt(state.rate) + ' so‘m';
+}
+
+function doConvert(){
+  const amt = Number($('#convAmount').value) || 0;
+  const dir = $('#convDir').value;
+
+  if(amt <= 0) return toast('⚠️ Summani kiriting');
+
+  if(dir === 'uzs-usd'){
+    if(amt > state.wallets.uzs) return toast('⚠️ so‘m balansi yetarli emas');
+    const got = amt / state.rate;
+    state.wallets.uzs -= amt;
+    state.wallets.usd += got;
+    state.txs.unshift({ id: Date.now(), dir:'out', icon:'⇄', name:'USD ga almashtirish', date: nowLabel(), amount: amt, cur:'UZS' });
+    state.txs.unshift({ id: Date.now()+1, dir:'in', icon:'💵', name:'USD hisobga tushdi', date: nowLabel(), amount: got, cur:'USD' });
+    toast(`✅ ${uzs(amt)} → ${usd(got)}`);
+  }else{
+    if(amt > state.wallets.usd) return toast('⚠️ USD balansi yetarli emas');
+    const got = amt * state.rate;
+    state.wallets.usd -= amt;
+    state.wallets.uzs += got;
+    state.txs.unshift({ id: Date.now(), dir:'out', icon:'💵', name:'so‘m ga almashtirish', date: nowLabel(), amount: amt, cur:'USD' });
+    state.txs.unshift({ id: Date.now()+1, dir:'in', icon:'⇄', name:'so‘m hisobga tushdi', date: nowLabel(), amount: got, cur:'UZS' });
+    toast(`✅ ${usd(amt)} → ${uzs(got)}`);
+  }
+
+  save(); renderAll();
+}
+
+/* ---------- MAVZU ---------- */
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', state.theme);
+  $('#themeBtn').textContent = state.theme === 'dark' ? '☀️' : '🌙';
+}
+
+/* ---------- GLOBAL CLICK HANDLER ---------- */
+document.addEventListener('click', e => {
+
+  /* Nusxalash */
+  const copyBtn = e.target.closest('[data-copy]');
+  if(copyBtn){
+    const num = copyBtn.dataset.copy;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(num).then(() => toast('📋 Karta raqami nusxalandi'));
+    }else{
+      toast('📋 ' + num);
+    }
+    return;
+  }
+
+  /* data-act amallar */
+  const btn = e.target.closest('[data-act]');
+  if(!btn) return;
+
+  const act = btn.dataset.act;
+  const map = {
+    send: modalSend,
+    topup: modalTopup,
+    addcard: modalAddCard,
+    settings: modalSettings,
+    notifications: modalNotifications,
+    exchange: () => {
+      $('#converter').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      $('#convAmount').focus();
+    },
+    home: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
+    tx: () => $('#txSection').scrollIntoView({ behavior: 'smooth', block: 'start' })
+  };
+  if(map[act]) map[act]();
+
+  /* bottom nav faol holat */
+  if(btn.classList.contains('bn-item')){
+    $$('.bn-item').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+});
+
+/* ---------- FILTR / QIDIRUV ---------- */
+$('#txFilters').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if(!chip) return;
+  txFilter = chip.dataset.filter;
+  $$('#txFilters .chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  renderTxs();
+});
+
+$('#txSearch').addEventListener('input', e => {
+  txQuery = e.target.value;
+  renderTxs();
+});
+
+/* ---------- BALANSNI YASHIRISH ---------- */
+$('#toggle').addEventListener('click', () => {
+  state.hidden = !state.hidden;
+  renderBalance();
+  save();
+});
+
+/* ---------- KONVERTER EVENTLARI ---------- */
+$('#convAmount').addEventListener('input', updateConv);
+$('#convDir').addEventListener('change', updateConv);
+$('#convBtn').addEventListener('click', doConvert);
+
+/* ---------- MAVZU TUGMASI ---------- */
+$('#themeBtn').addEventListener('click', () => {
+  state.theme = state.theme === 'dark' ? 'light' : 'dark';
+  applyTheme();
+  save();
+});
+
+/* ---------- MODAL YOPISH ---------- */
+$('#modalClose').addEventListener('click', closeModal);
+overlay.addEventListener('click', e => { if(e.target === overlay) closeModal(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+
+/* ---------- ISHGA TUSHIRISH ---------- */
+load();
+applyTheme();
+renderAll();
+</script>
+
+</body>
+</html
